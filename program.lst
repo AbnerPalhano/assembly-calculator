@@ -1,0 +1,228 @@
+     1                                 %line 1+1 program.asm
+     2                                 [section .data]
+     3                                 
+     4                                 SYS_READ equ 0
+     5                                 SYS_WRITE equ 1
+     6                                 SYS_EXIT equ 60
+     7                                 EXIT_SUCCESS equ 0
+     8                                 
+     9                                 STDIN equ 0
+    10                                 STDOUT equ 1
+    11                                 
+    12                                 LF equ 10
+    13                                 NULL equ 0
+    14                                 INPUTLEN equ 10
+    15 00000000 0A00                   newline db LF,NULL
+    16                                 
+    17                                 
+    18 00000002 746869732070726F67-    initialmsg db "this program shows the addition, subtraction, multiplication and division operations result between two integer numbers.",LF,NULL
+    19 00000002 72616D2073686F7773-
+    20 00000002 207468652061646469-
+    21 00000002 74696F6E2C20737562-
+    22 00000002 7472616374696F6E2C-
+    23 00000002 206D756C7469706C69-
+    24 00000002 636174696F6E20616E-
+    25 00000002 64206469766973696F-
+    26 00000002 6E206F706572617469-
+    27 00000002 6F6E7320726573756C-
+    28 00000002 74206265747765656E-
+    29 00000002 2074776F20696E7465-
+    30 00000002 676572206E756D6265-
+    31 00000002 72732E0A00         
+    32                                 
+    33 0000007C 656E7465722061206E-    firstInputMsg db "enter a number: ", NULL
+    34 0000007C 756D6265723A2000   
+    35                                 
+    36 0000008D 656E746572206F7468-    secondInputMsg db "enter other number: ", NULL
+    37 0000008D 6572206E756D626572-
+    38 0000008D 3A2000             
+    39                                 
+    40 000000A2 6164646974696F6E3A-    addMsg db "addition: ",NULL
+    41 000000A2 2000               
+    42                                 
+    43 000000AD 737562747261637469-    subMsg db "subtraction: ",NULL
+    44 000000AD 6F6E3A2000         
+    45                                 
+    46 000000BB 6D756C7469706C6963-    multiMsg db "multiplication: ",NULL
+    47 000000BB 6174696F6E3A2000   
+    48                                 
+    49 000000CC 6469766973696F6E3A-    divMsg db "division: ",NULL
+    50 000000CC 2000               
+    51                                 
+    52 000000D7 0000000000000000       addAns dq 0
+    53 000000DF 0000000000000000       subAns dq 0
+    54 000000E7 0000000000000000       multiAns dq 0
+    55 000000EF 0000000000000000       divAns dq 0
+    56                                 [section .bss]
+    57 00000000 <gap>                  digitSpace resd 100
+    58 00000190 <gap>                  digitSpacePos resd 8
+    59 000001B0 <gap>                  numInput1 resb 1
+    60 000001B1 <gap>                  numInput2 resb 1
+    61 000001B2 <gap>                  num1 resb INPUTLEN+2
+    62 000001BE <gap>                  num2 resb INPUTLEN+2
+    63                                 
+    64                                 [section .text]
+    65                                 [global _start]
+    66                                 [global _stringPrint]
+    67                                 [global _numberInput]
+    68                                 [global _stringToInt]
+    69                                 [global _digitPrint]
+    70                                 
+    71                                 _start:
+    72                                 
+    73 00000000 48C7C7[00000000]       mov rdi, initialmsg
+    74 00000007 E807010000             call _stringPrint
+    75                                 
+    76 0000000C 48C7C7[00000000]       mov rdi, firstInputMsg
+    77 00000013 E8FB000000             call _stringPrint
+    78                                 
+    79 00000018 48C7C3[00000000]       mov rbx,num1
+    80 0000001F 49C7C400000000         mov r12,0
+    81 00000026 488D3425[00000000]     lea rsi, byte[numInput1]
+    82 0000002E E811010000             call _numberInput
+    83                                 
+    84 00000033 48C7C7[00000000]       mov rdi, secondInputMsg
+    85 0000003A E8D4000000             call _stringPrint
+    86                                 
+    87 0000003F 48C7C3[00000000]       mov rbx, num2
+    88 00000046 49C7C400000000         mov r12,0
+    89 0000004D 488D3425[00000000]     lea rsi, byte[numInput2]
+    90 00000055 E8EA000000             call _numberInput
+    91                                 
+    92                                 
+    93                                 
+    94                                 
+    95 0000005A 48C7C7[00000000]       mov rdi, addMsg
+    96 00000061 E8AD000000             call _stringPrint
+    97                                 
+    98                                 
+    99 00000066 488B0425[00000000]     mov rax,qword[num1]
+   100 0000006E 48030425[00000000]     add rax,qword[num2]
+   101 00000076 48890425[00000000]     mov qword[addAns],rax
+   102 0000007E E8EF000000             call _digitPrint
+   103                                 
+   104 00000083 48C7C7[00000000]       mov rdi, subMsg
+   105 0000008A E884000000             call _stringPrint
+   106                                 
+   107                                 
+   108 0000008F 488B0425[00000000]     mov rax,qword[num1]
+   109 00000097 482B0425[00000000]     sub rax,qword[num2]
+   110 0000009F 48890425[00000000]     mov qword[subAns],rax
+   111 000000A7 E8C6000000             call _digitPrint
+   112                                 
+   113 000000AC 48C7C7[00000000]       mov rdi, multiMsg
+   114 000000B3 E85B000000             call _stringPrint
+   115                                 
+   116                                 
+   117 000000B8 488B0425[00000000]     mov rax,qword[num1]
+   118 000000C0 48F72425[00000000]     mul qword[num2]
+   119 000000C8 48890425[00000000]     mov qword[multiAns],rax
+   120 000000D0 48891425[08000000]     mov qword[multiAns+8],rdx
+   121 000000D8 E895000000             call _digitPrint
+   122                                 
+   123 000000DD 48C7C7[00000000]       mov rdi, divMsg
+   124 000000E4 E82A000000             call _stringPrint
+   125                                 
+   126                                 
+   127 000000E9 488B0425[00000000]     mov rax,qword[num1]
+   128 000000F1 4899                   cqo
+   129 000000F3 48F73425[00000000]     div qword[num2]
+   130 000000FB 48890425[00000000]     mov qword[divAns],rax
+   131 00000103 E86A000000             call _digitPrint
+   132                                 
+   133 00000108 48C7C03C000000         mov rax, SYS_EXIT
+   134 0000010F 48C7C700000000         mov rdi, EXIT_SUCCESS
+   135 00000116 0F05                   syscall
+   136                                 
+   137                                 
+   138                                 _stringPrint:
+   139 00000118 53                     push rbx
+   140                                 
+   141                                 
+   142                                 
+   143                                 
+   144 00000119 4889FB                 mov rbx,rdi
+   145 0000011C 48C7C200000000         mov rdx, 0
+   146                                 
+   147                                 strCountLoop:
+   148 00000123 803B00                 cmp byte[rbx],NULL
+   149 00000126 7406                   je strCountDone
+   150 00000128 48FFC2                 inc rdx
+   151 0000012B 48FFC3                 inc rbx
+   152 0000012E EBF1                   jmp strCountLoop
+   153                                 
+   154                                 strCountDone:
+   155 00000130 4883FA00               cmp rdx,0
+   156 00000134 740F                   je prtDone
+   157                                 
+   158                                 
+   159                                 
+   160 00000136 B801000000             mov eax, SYS_WRITE
+   161 0000013B 4889FE                 mov rsi, rdi
+   162 0000013E 48C7C701000000         mov rdi, STDOUT
+   163 00000145 0F05                   syscall
+   164                                 
+   165                                 prtDone:
+   166 00000147 5B                     pop rbx
+   167 00000148 C3                     ret
+   168                                 
+   169                                 _numberInput:
+   170                                 readNumber:
+   171 00000149 48C7C000000000         mov rax, SYS_READ
+   172 00000150 48C7C700000000         mov rdi,STDIN
+   173 00000157 48C7C201000000         mov rdx,1
+   174 0000015E 0F05                   syscall
+   175                                 
+   176 00000160 8A06                   mov al,byte[rsi]
+   177 00000162 3C0A                   cmp al,LF
+   178 00000164 740E                   je readDone
+   179                                 
+   180 00000166 49FFC4                 inc r12
+   181 00000169 4983FC0A               cmp r12,INPUTLEN
+   182 0000016D 73D8                   jae readNumber
+   183                                 
+   184 0000016F 8803                   mov byte[rbx],al
+   185 00000171 48FFC3                 inc rbx
+   186 00000174 EBD1                   jmp readNumber
+   187                                 readDone:
+   188 00000176 C3                     ret
+   189                                 
+   190                                 _digitPrint:
+   191 00000177 48C7C1[00000000]       mov rcx,digitSpace
+   192 0000017E 48C7C30A000000         mov rbx,LF
+   193 00000185 488919                 mov [rcx],rbx
+   194 00000188 48FFC1                 inc rcx
+   195 0000018B 48890C25[00000000]     mov [digitSpacePos],rcx
+   196                                 
+   197                                 _digitPrintLoop:
+   198 00000193 48C7C200000000         mov rdx, 0
+   199 0000019A 48C7C30A000000         mov rbx, 10
+   200 000001A1 48F7F3                 div rbx
+   201 000001A4 50                     push rax
+   202 000001A5 4883C230               add rdx,48
+   203                                 
+   204 000001A9 488B0C25[00000000]     mov rcx, [digitSpacePos]
+   205 000001B1 8811                   mov [rcx],dl
+   206 000001B3 48FFC1                 inc rcx
+   207 000001B6 48890C25[00000000]     mov [digitSpacePos], rcx
+   208                                 
+   209 000001BE 58                     pop rax
+   210 000001BF 4883F800               cmp rax,0
+   211 000001C3 75CC                   jne _digitPrintLoop
+   212                                 
+   213                                 _digitPrintLoop2:
+   214 000001C5 488B0C25[00000000]     mov rcx,[digitSpacePos]
+   215                                 
+   216 000001CD 48C7C001000000         mov rax,SYS_WRITE
+   217 000001D4 48C7C701000000         mov rdi,STDOUT
+   218 000001DB 4889CE                 mov rsi,rcx
+   219 000001DE 48C7C201000000         mov rdx,1
+   220 000001E5 0F05                   syscall
+   221                                 
+   222 000001E7 488B0C25[00000000]     mov rcx, [digitSpacePos]
+   223 000001EF 48FFC9                 dec rcx
+   224 000001F2 48890C25[00000000]     mov [digitSpacePos],rcx
+   225                                 
+   226 000001FA 4881F9[00000000]       cmp rcx,digitSpace
+   227 00000201 7DC0                   jge _digitPrintLoop2
+   228 00000203 C3                     ret
