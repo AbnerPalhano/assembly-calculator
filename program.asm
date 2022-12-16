@@ -10,41 +10,36 @@ STDOUT equ 1
 
 LF equ 10
 NULL equ 0
-INPUTLEN equ 10
 newline db LF,NULL
 
 
-initialmsg db "this program shows the addition, subtraction, multiplication and division operations result between two integer numbers.",LF,NULL
+initialmsg db "this program shows the addition, subtraction, multiplication and division operations result between two integers",LF,NULL
 
-firstInputMsg db "enter a number: ", NULL
+plus db "+", NULL
+minus db "-", NULL
+multiplication db "*", NULL
+division db "/", NULL
+equal db "=", NULL
 
-secondInputMsg db "enter other number: ", NULL
+addMsg db "addition:",LF,NULL
+subMsg db "subtraction:",LF,NULL
+multiMsg db "multiplication:",LF,NULL
+divMsg db "division:",LF,NULL
 
-addMsg db "addition: ",NULL
-
-subMsg db "subtraction: ",NULL
-
-multiMsg db "multiplication: ",NULL
-
-divMsg db "division: ",NULL
-
+num1 dq 1235
+num2 dq 568
 addAns dq 0
 subAns dq 0
 multiAns dq 0
 divAns dq 0
+
 section .bss
 digitSpace resd 100
 digitSpacePos resd 8
-numInput1 resb 1
-numInput2 resb 1
-num1 resb INPUTLEN+2
-num2 resb INPUTLEN+2
 
 section .text
 global _start
 global _stringPrint
-global _numberInput
-global _stringToInt
 global _digitPrint
 
 _start:
@@ -52,68 +47,101 @@ _start:
 mov rdi, initialmsg
 call _stringPrint
 
-mov rdi, firstInputMsg
+mov rdi, newline
 call _stringPrint
 
-mov rbx,num1
-mov r12,0
-lea rsi, byte[numInput1]
-call _numberInput
-
-mov rdi, secondInputMsg
-call _stringPrint
-
-mov rbx, num2
-mov r12,0
-lea rsi, byte[numInput2]
-call _numberInput
-
-;call _stringToInt
-
-
-mov rdi, addMsg
-call _stringPrint
+;################################################
+;Math operations
 
 ;addition
+mov rdi, addMsg
+call _stringPrint
+mov rax, qword[num1]
+call _digitPrint
+mov rdi, plus
+call _stringPrint
+mov rax, qword[num2]
+call _digitPrint
 mov rax,qword[num1]
 add rax,qword[num2]
 mov qword[addAns],rax
+mov rdi, equal
+call _stringPrint
+mov rax, qword[addAns]
 call _digitPrint
 
-mov rdi, subMsg
+mov rdi, newline
 call _stringPrint
 
 ;subtraction
+mov rdi, subMsg
+call _stringPrint
+mov rax, qword[num1]
+call _digitPrint
+mov rdi, minus
+call _stringPrint
+mov rax, qword[num2]
+call _digitPrint
 mov rax,qword[num1]
 sub rax,qword[num2]
 mov qword[subAns],rax
+mov rdi, equal
+call _stringPrint
+mov rax, qword[subAns]
 call _digitPrint
 
-mov rdi, multiMsg
+mov rdi, newline
 call _stringPrint
 
 ;multiplication
+mov rdi, multiMsg
+call _stringPrint
+mov rax, qword[num1]
+call _digitPrint
+mov rdi, multiplication
+call _stringPrint
+mov rax, qword[num2]
+call _digitPrint
 mov rax,qword[num1]
-mul qword[num2]
+imul qword[num2]
 mov qword[multiAns],rax
 mov qword[multiAns+8],rdx
+mov rdi, equal
+call _stringPrint 
+mov rax, qword[multiAns]
 call _digitPrint
 
-mov rdi, divMsg
+mov rdi, newline
 call _stringPrint
 
 ;division
+mov rdi, divMsg
+call _stringPrint
+mov rax, qword[num1]
+call _digitPrint
+mov rdi, division
+call _stringPrint
+mov rax, qword[num2]
+call _digitPrint
 mov rax,qword[num1]
 cqo
 div qword[num2]
 mov qword[divAns],rax
+mov rdi, equal
+call _stringPrint 
+mov rax, qword[divAns]
 call _digitPrint
+
+;################################################
+;Exit program
 
 mov rax, SYS_EXIT
 mov rdi, EXIT_SUCCESS
 syscall
 
-;--------------- FUNCTIONS----------------
+;-------------------FUNCTIONS--------------------
+;################################################
+
 _stringPrint:
 push rbx
 
@@ -145,30 +173,9 @@ prtDone:
 pop rbx
 ret
 
-_numberInput:
-readNumber:
-mov rax, SYS_READ
-mov rdi,STDIN
-mov rdx,1
-syscall
-
-mov al,byte[rsi]
-cmp al,LF
-je readDone
-
-inc r12
-cmp r12,INPUTLEN
-jae readNumber
-
-mov byte[rbx],al
-inc rbx
-jmp readNumber
-readDone:
-ret
-
+;################################################
 _digitPrint:
 mov rcx,digitSpace
-mov rbx,LF
 mov [rcx],rbx
 inc rcx
 mov [digitSpacePos],rcx
